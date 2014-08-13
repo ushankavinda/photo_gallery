@@ -9,27 +9,32 @@ class MySQLDatabase {
     private $real_escape_string_exists;
     
     public function open_connection() {
-        $this-> connection = mysqli_connect(DB_SERVER, DB_USER, DB_PASS,DB_NAME);
+        $this-> connection = mysqli_connect(DB_SERVER, DB_USER, DB_PASS, DB_NAME);
         if (!$this->connection) {
-            die("Database connection failed: " . mysql_error());
-        } 
-     }
+            die("Database connection failed: " . mysqli_error());
+        } //else {
+           // $db_select = mysqli_select_db(DB_NAME, $this->connection);
+           // if (!$db_select) {
+               // die("Database selection failed: " .mysql_error());
+           // }
+       // }
+    }
     
     public function __construct() {
         $this->open_connection();
         $this->magic_quotes_active = get_magic_quotes_gpc();
-        $this->real_escape_string_exists = function_exists("mysql_real_escape_string");
+        $this->real_escape_string_exists = function_exists("mysqli_real_escape_string");
     }
     
     public function close_connection() {
         if(isset($this->connection)) {
-            mysql_close($this->connection);
+            mysqli_close($this->connection);
             unset($this->connection);
         }
     }   
     public function query($sql) {
         $this->last_query = $sql;
-        $result = mysql_query($sql, $this->connection);
+        $result = mysqli_query($this->connection,$sql);
         $this->confirm_query($result);
         return $result;
     }
@@ -39,7 +44,7 @@ class MySQLDatabase {
             if($this->magic_quotes_active){
                 $value = stripcslashes($value);
             }
-            $value = mysqli_escape_string($value);
+            $value = mysqli_real_escape_string($this->connection, $value);
         } else {
             if(!$this->magic_quotes_active) {
                 $value = addslashes($value);
@@ -48,21 +53,21 @@ class MySQLDatabase {
         return $value;
     } 
     public function fetch_array($result_set) {
-        return mysql_fetch_array($result_set);
+        return mysqli_fetch_array($result_set);
     }
     public function num_rows($result_set){
-        return mysql_num_rows($result_set);
+        return mysqli_num_rows($result_set);
     }
     public function insert_id() {
         //get the last id inserted.
-        return mysql_insert_id($this->connection);
+        return mysqli_insert_id($this->connection);
     }
     public function affected_row() {
-        return mysql_affected_rows($this->connection);
+        return mysqli_affected_rows($this->connection);
     }
     private function confirm_query($result) {
         if (!$result) {
-            $output = "Database query failed: " .mysql_error() . "<br/>";
+            $output = "Database query failed: " .mysqli_error() . "<br/>";
             
             $output .= "Last query: " . $this->last_query;
             die($output);

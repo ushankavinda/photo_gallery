@@ -42,7 +42,7 @@ if (isset($_POST['submit'])) { // Form has been submitted.
     </div>
     <div id="main">
 		<h2>Staff Login</h2>
-		<?php echo output_message($message); ?>
+		<?php //echo output_message($message); ?>
 
 		<form action="login.php" method="post">
 		  <table>
