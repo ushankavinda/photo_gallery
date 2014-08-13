@@ -9,16 +9,11 @@ class MySQLDatabase {
     private $real_escape_string_exists;
     
     public function open_connection() {
-        $this-> connection = mysql_connect(DB_SERVER, DB_USER, DB_PASS);
+        $this-> connection = mysqli_connect(DB_SERVER, DB_USER, DB_PASS,DB_NAME);
         if (!$this->connection) {
             die("Database connection failed: " . mysql_error());
-        } else {
-            $db_select = mysql_select_db(DB_NAME, $this->connection);
-            if (!$db_select) {
-                die("Database selection failed: " .mysql_error());
-            }
-        }
-    }
+        } 
+     }
     
     public function __construct() {
         $this->open_connection();
@@ -44,7 +39,7 @@ class MySQLDatabase {
             if($this->magic_quotes_active){
                 $value = stripcslashes($value);
             }
-            $value = mysql_real_escape_string($value);
+            $value = mysqli_escape_string($value);
         } else {
             if(!$this->magic_quotes_active) {
                 $value = addslashes($value);
